@@ -8,6 +8,8 @@ from pattern import Pattern
 pygame.init()
 
 
+
+
 def main():
     m,n = 32,32
     cell_size = 20
@@ -17,6 +19,9 @@ def main():
 
     while running:
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEMOTION:
+                # print(event.pos)
+                grid.update_hovered_cell(event.pos)
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -27,7 +32,7 @@ def main():
                         
                         grid.handle_direction_selection(pos)
                     else:
-                        print(1)
+                        # print(1)
                         grid.check_pattern_click(pos)
                         dragging = True
             elif event.type == pygame.MOUSEBUTTONUP:

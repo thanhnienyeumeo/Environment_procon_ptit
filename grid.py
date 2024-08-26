@@ -5,13 +5,15 @@ import random
 import numpy as np
 from pattern import Pattern
 class Grid:
-    def __init__(self, m, n, cell_size):
+    def __init__(self, m, n, cell_size, cnt=None):
+        self.cnt = [0, 0, 0, 0]
         self.m = m  # Số dòng
         self.n = n  # Số cột
         self.cell_size = cell_size  # Kích thước ô vuông
         self.grid_margin = 50  # Khoảng trống thêm bên trái grid
+        self.top_margin = 50
         self.width = n * cell_size + self.grid_margin  # Chiều rộng cửa sổ
-        self.height = m * cell_size  # Chiều cao cửa sổ
+        self.height = m * cell_size + 2 *self.top_margin # Chiều cao cửa sổ
         self.board = np.zeros((m, n), dtype=int)  # Bảng 2D chứa các giá trị từ 0 đến 3
         self.colors = {
             0: (255, 255, 255),  # Trắng
@@ -21,10 +23,18 @@ class Grid:
         }
         self.font = pygame.font.SysFont(None, 18)  # Font chữ để hiển thị số
         self.screen = pygame.display.set_mode((self.width + 300, self.height))  # Tạo cửa sổ, +300 cho phần giao diện pattern
-
-        self.fill_board()  # Gán giá trị cho bảng
-        self.patterns_3x3 = [Pattern(3, 3, cell_size) for _ in range(3)]  # Tạo 3 pattern 3x3 ngẫu nhiên
-        self.patterns_2x2 = [Pattern(2, 2, cell_size) for _ in range(2)]  # Tạo 2 pattern 2x2 ngẫu nhiên
+        if cnt is None:
+            self.fill_board_random()  # Gán giá trị cho bảng
+        else:
+            self.fill_board(cnt)
+        self.hovered_cell = None
+        self.patterns = [Pattern(1,1,cell_size,1)]
+        for sz in range(1,9):
+            sz = 2**sz
+            for _ in range(3):
+                self.patterns.append(Pattern(sz,sz,cell_size,_))
+        self.patterns_3x3 = [Pattern(3, 3, cell_size, _) for _ in range(3)]  # Tạo 3 pattern 3x3 ngẫu nhiên
+        self.patterns_2x2 = [Pattern(2, 2, cell_size, _) for _ in range(3)]  # Tạo 2 pattern 2x2 ngẫu nhiên
         self.selected_pattern = None  # Pattern được chọn
         self.original_pattern_pos = None  # Vị trí gốc của pattern
         self.current_pattern_pos = None  # Vị trí hiện tại của pattern
@@ -33,7 +43,7 @@ class Grid:
         self.cur_x = -1 # Vị trí x của ô được chọn
         self.cur_y = -1 # Vị trí y của ô được chọn
     
-    def fill_board(self):
+    def fill_board_random(self):
         """Gán ngẫu nhiên giá trị từ 0 đến 3 cho các ô trong bảng, đảm bảo mỗi giá trị chiếm ít nhất 10% số phần tử."""
         num_cells = self.m * self.n
         min_count = num_cells // 10
@@ -46,10 +56,37 @@ class Grid:
                 y, x = divmod(idx, self.n)
                 self.board[y][x] = value
                 remaining_cells.remove(idx)
+                self.cnt[value] += 1
 
         for idx in remaining_cells:
             y, x = divmod(idx, self.n)
-            self.board[y][x] = random.choice(values)
+            cur = random.choice(values)
+            self.board[y][x] = cur
+            self.cnt[cur] += 1
+    
+
+    def fill_board(self, cnt):
+        """Gán số lượng cụ thể của các giá trị 0, 1, 2, 3 vào các ô trong bảng, đảm bảo số lượng mỗi giá trị như yêu cầu."""
+        num_cells = self.m * self.n
+        total_cnt = sum(cnt)
+        
+        if total_cnt != num_cells:
+            raise ValueError("Tổng số lượng các giá trị không khớp với kích thước của bảng.")
+        
+        values = [0, 1, 2, 3]
+        counts = dict(zip(values, cnt))
+        remaining_cells = list(range(num_cells))
+        
+        # Gán các giá trị vào các ô trong bảng theo số lượng yêu cầu
+        for value in values:
+            for _ in range(counts[value]):
+                idx = random.choice(remaining_cells)
+                y, x = divmod(idx, self.n)
+                self.board[y][x] = value
+                remaining_cells.remove(idx)
+
+        
+
 
     def create_direction_buttons(self):
         """Tạo các nút chọn hướng ở góc dưới cùng bên phải của cửa sổ."""
@@ -82,23 +119,27 @@ class Grid:
         # Vẽ grid
         for y in range(self.m):
             for x in range(self.n):
-                rect = pygame.Rect(self.grid_margin + x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size)
-                pygame.draw.rect(self.screen, self.colors[self.board[y][x]], rect)
+                if self.hovered_cell and (x, y) == self.hovered_cell:
+                    color = (200, 200, 200)  # Màu xám
+                else:
+                    color = self.colors[self.board[y][x]]
+                rect = pygame.Rect(self.grid_margin + x * self.cell_size,self.top_margin + y * self.cell_size, self.cell_size, self.cell_size)
+                pygame.draw.rect(self.screen, color, rect)
 
                 # Hiển thị số trên ô vuông
                 text = self.font.render(str(self.board[y][x]), True, (0, 0, 0))  # Màu chữ là đen
-                text_rect = text.get_rect(center=(self.grid_margin + x * self.cell_size + self.cell_size // 2, y * self.cell_size + self.cell_size // 2))
+                text_rect = text.get_rect(center=(self.grid_margin + x * self.cell_size + self.cell_size // 2, self.top_margin +  y * self.cell_size + self.cell_size // 2))
                 self.screen.blit(text, text_rect)
 
         # Vẽ 3 pattern ngẫu nhiên
         for i, pattern in enumerate(self.patterns_3x3):
-            pattern_x = self.width + 10
+            pattern_x = self.width + self.grid_margin + 2
             pattern_y = i * (pattern.size + 10) + 10
             pattern.draw(self.screen, pattern_x, pattern_y)
 
         # Vẽ 2 pattern ngẫu nhiên
         for i, pattern in enumerate(self.patterns_2x2):
-            pattern_x = self.width + 10 + 3 * (self.patterns_3x3[0].size + 10)
+            pattern_x = self.width + self.grid_margin + 2 + 3 * (self.patterns_3x3[0].size + 10)
             pattern_y = i * (pattern.size + 10) + 10
             pattern.draw(self.screen, pattern_x, pattern_y)
 
@@ -112,6 +153,16 @@ class Grid:
             self.create_direction_buttons()
             self.draw_direction_buttons()
 
+    def update_hovered_cell(self, pos):
+        """Cập nhật vị trí ô đang được hover."""
+        grid_x = (pos[0] - self.grid_margin) // self.cell_size
+        grid_y = (pos[1] - self.top_margin) // self.cell_size
+
+        # Kiểm tra xem vị trí có hợp lệ không
+        if 0 <= grid_x < self.n and 0 <= grid_y < self.m:
+            self.hovered_cell = (grid_x, grid_y)
+        else:
+            self.hovered_cell = None
 
     def check_pattern_click(self, pos):
         """Kiểm tra xem người dùng có click vào pattern nào không."""
@@ -151,7 +202,7 @@ class Grid:
         if self.selected_pattern:
             # print("Vị trí click lưu lại:", pos)
             grid_x = (pos[0] - self.grid_margin) // self.cell_size 
-            grid_y = pos[1] // self.cell_size
+            grid_y = (pos[1] - self.top_margin) // self.cell_size
             print("grid_x: ", grid_x)
             print("grid_y: ", grid_y)
             # if grid_x > self.m or grid_y > self.n:
