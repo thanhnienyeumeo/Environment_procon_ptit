@@ -1,5 +1,8 @@
 
 ###
+
+
+# ###
 import pygame
 import random
 import numpy as np
@@ -167,7 +170,7 @@ class Grid:
     def check_pattern_click(self, pos):
         """Kiểm tra xem người dùng có click vào pattern nào không."""
         for i, pattern in enumerate(self.patterns_3x3):
-            pattern_x = self.width + 10
+            pattern_x = self.width + self.grid_margin + 2
             pattern_y = i * (pattern.size + 10) + 10
             if pattern_x <= pos[0] <= pattern_x + pattern.size and pattern_y <= pos[1] <= pattern_y + pattern.size:
                 rel_x = (pos[0] - pattern_x) // pattern.cell_size
@@ -181,7 +184,7 @@ class Grid:
                     return
 
         for i, pattern in enumerate(self.patterns_2x2):
-            pattern_x = self.width + 10 + 3 * (self.patterns_3x3[0].size + 10)
+            pattern_x = self.width + self.grid_margin + 2 + 3 * (self.patterns_3x3[0].size + 10)
             pattern_y = i * (pattern.size + 10) + 10
             if pattern_x <= pos[0] <= pattern_x + pattern.size and pattern_y <= pos[1] <= pattern_y + pattern.size:
                 rel_x = (pos[0] - pattern_x) // pattern.cell_size
@@ -284,3 +287,4 @@ class Grid:
         if self.selected_pattern:
             self.process_grid(pos)
             
+

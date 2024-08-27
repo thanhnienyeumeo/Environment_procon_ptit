@@ -3,6 +3,10 @@ import pygame
 from grid import Grid
 from pattern import Pattern
 import gym
+
+def solve(question):
+    return {"n": 1, "ops": [{"x": 1, "y": 1, "s": 1, "p": 1}]}
+
 class Game(gym.Env):
     def __init__(self, m, n, cell_size):
         self.m = m
@@ -16,9 +20,13 @@ class Game(gym.Env):
         
     
     def convert(self, action):
-        id = action // 4
-        direction = action % 4
-        return id, direction
+        #from action --> (x,y,s,p)
+        #max size of pattern is 256x256
+        #because we can place pattern outside of the grid if at least one cell of pattern is inside the grid
+        # so if size of grid is mxn, 
+        # x = 
+        x = action // (self.m * self.n)
+
 
     def is_end(self):
         return self.grid == self.final_grid

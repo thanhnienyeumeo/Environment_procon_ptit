@@ -8,8 +8,6 @@ from pattern import Pattern
 pygame.init()
 
 
-
-
 def main():
     m,n = 32,32
     cell_size = 20
@@ -53,4 +51,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
