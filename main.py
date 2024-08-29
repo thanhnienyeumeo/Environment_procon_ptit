@@ -6,15 +6,16 @@ import random
 from grid import Grid
 from pattern import Pattern
 pygame.init()
-
+from game import Game
 
 def main():
     m,n = 32,32
     cell_size = 20
-    grid = Grid(m, n, cell_size)  # Tạo một lưới 7x7 với kích thước ô là 50
+    game = Game(m, n, cell_size)
+    grid = game.grid  # Tạo một lưới 7x7 với kích thước ô là 50
     running = True
     dragging = False
-
+#tabun
     while running:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEMOTION:

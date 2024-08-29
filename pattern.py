@@ -4,7 +4,7 @@ import pygame
 
 
 class Pattern:
-    def __init__(self, p, q, cell_size, id = 0):
+    def __init__(self, p, q, cell_size, id = 0, render = None):
         self.p = p  # Số dòng
         self.q = q  # Số cột
         self.cell_size = cell_size  # Kích thước ô vuông
@@ -34,8 +34,9 @@ class Pattern:
         self.top = (0, 0)
         self.bottom = (0, 0)
         # Tạo surface để vẽ pattern với độ trong suốt
-        self.surface = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
-        self.update_surface()
+        if render:
+            self.surface = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+            self.update_surface()
 
     def update_surface(self):
         """Cập nhật surface của pattern với các màu tương ứng."""

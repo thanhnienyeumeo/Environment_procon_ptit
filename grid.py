@@ -8,7 +8,7 @@ import random
 import numpy as np
 from pattern import Pattern
 class Grid:
-    def __init__(self, m, n, cell_size, cnt=None):
+    def __init__(self, m, n, cell_size, cnt=None, render = None):
         self.cnt = [0, 0, 0, 0]
         self.m = m  # Số dòng
         self.n = n  # Số cột
@@ -24,20 +24,18 @@ class Grid:
             2: (0, 255, 0),      # Xanh lá
             3: (0, 0, 255)       # Xanh dương
         }
-        self.font = pygame.font.SysFont(None, 18)  # Font chữ để hiển thị số
-        self.screen = pygame.display.set_mode((self.width + 300, self.height))  # Tạo cửa sổ, +300 cho phần giao diện pattern
         if cnt is None:
             self.fill_board_random()  # Gán giá trị cho bảng
         else:
             self.fill_board(cnt)
         self.hovered_cell = None
-        self.patterns = [Pattern(1,1,cell_size,1)]
+        self.patterns = [Pattern(1,1,cell_size,1, render)]
         for sz in range(1,9):
-            sz = 2**sz
+            size = 2**sz
             for _ in range(3):
-                self.patterns.append(Pattern(sz,sz,cell_size,_))
-        self.patterns_3x3 = [Pattern(3, 3, cell_size, _) for _ in range(3)]  # Tạo 3 pattern 3x3 ngẫu nhiên
-        self.patterns_2x2 = [Pattern(2, 2, cell_size, _) for _ in range(3)]  # Tạo 2 pattern 2x2 ngẫu nhiên
+                self.patterns.append(Pattern(size,size,cell_size,_, render))
+        self.patterns_3x3 = [Pattern(3, 3, cell_size,_, render) for _ in range(3)]  # Tạo 3 pattern 3x3 ngẫu nhiên
+        self.patterns_2x2 = [Pattern(2, 2, cell_size,_, render) for _ in range(3)]  # Tạo 2 pattern 2x2 ngẫu nhiên
         self.selected_pattern = None  # Pattern được chọn
         self.original_pattern_pos = None  # Vị trí gốc của pattern
         self.current_pattern_pos = None  # Vị trí hiện tại của pattern
@@ -45,6 +43,10 @@ class Grid:
         self.direction_buttons = []  # Các nút chọn hướng
         self.cur_x = -1 # Vị trí x của ô được chọn
         self.cur_y = -1 # Vị trí y của ô được chọn
+        if render is not None:
+            self.font = pygame.font.SysFont(None, 18)  # Font chữ để hiển thị số
+            self.screen = pygame.display.set_mode((self.width + 300, self.height))  # Tạo cửa sổ, +300 cho phần giao diện pattern
+
     
     def fill_board_random(self):
         """Gán ngẫu nhiên giá trị từ 0 đến 3 cho các ô trong bảng, đảm bảo mỗi giá trị chiếm ít nhất 10% số phần tử."""
@@ -232,7 +234,7 @@ class Grid:
                         self.board[grid_y + i][grid_x + j] = -1  # Sử dụng giá trị đặc biệt để chỉ định ô trống
 
         # Bước 2: Dịch các phần tử còn lại theo hướng đã chọn
-        if direction == 'right':
+        if direction == 'right' or direction == 0:
             for i in range(self.m):
                 for j in range(self.n - 1, -1, -1):
                     if self.board[i][j] == -1:
@@ -240,7 +242,7 @@ class Grid:
                             self.board[i][k] = self.board[i][k + 1]
                         self.board[i][self.n - 1] = -1
 
-        elif direction == 'left':
+        elif direction == 'left' or direction == 1:
             for i in range(self.m):
                 for j in range(self.n):
                     if self.board[i][j] == -1:
@@ -248,7 +250,7 @@ class Grid:
                             self.board[i][k] = self.board[i][k - 1]
                         self.board[i][0] = -1
 
-        elif direction == 'down':
+        elif direction == 'down' or direction == 2:
             for j in range(self.n):
                 for i in range(self.m - 1, -1, -1):
                     if self.board[i][j] == -1:
@@ -256,7 +258,7 @@ class Grid:
                             self.board[k][j] = self.board[k + 1][j]
                         self.board[self.m - 1][j] = -1
 
-        elif direction == 'up':
+        elif direction == 'up' or direction == 3:
             for j in range(self.n):
                 for i in range(self.m):
                     if self.board[i][j] == -1:
