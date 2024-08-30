@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 from grid import Grid
 from pattern import Pattern
+# import gymnasium as gym
 import gym
 
 def solve(question):
@@ -12,13 +13,15 @@ class Game(gym.Env):
 
     
     def __init__(self, m, n, cell_size):
+        super().__init__()
         self.m = m
         self.n = n
         self.cell_size = cell_size
         self.grid = Grid(m, n, cell_size)
+        
         self.dict = []
         self.action_space = gym.spaces.Discrete(self.init_action())
-        self.observation_space = gym.spaces.Box(low=0, high=3, shape=(self.m, self.n, 1), dtype=np.uint8)
+        self.observation_space = gym.spaces.Box(low=0, high=3, shape=(self.m, self.n), dtype=np.uint8)
         #final grid having the same size, same count of 1,2,3 as grid but shuffle
         self.final_grid = Grid(m, n, cell_size, self.grid.cnt)
         self.running = True
@@ -33,8 +36,8 @@ class Game(gym.Env):
                 for x in range(-sz + 1,self.n):
                     for y in range(-sz + 1,self.m):
                                 self.dict.append([x, y, a, b])
-        print(len(dict))
-        return len(dict)
+        print(len(self.dict))
+        return len(self.dict)
 
     def convert(self, action):
         #32x32, pattern 3x3 -> 34 x 34
@@ -81,7 +84,7 @@ class Game(gym.Env):
 
     def step(self, action):
         
-        x,y, direction, p = self.convert(action)
+        x,y, direction, p = self.dict[action]
         self.grid.selected_pattern = self.grid.patterns[p]
         self.grid.cur_x = x
         self.grid.cur_y = y
@@ -94,12 +97,14 @@ class Game(gym.Env):
             reward = 1
         else:
             reward = 1 / (self.cntDifferece() + 1)
-        return self.grid.board, reward, done, None
-
-    def render(self):
+        truncated = False
+        return (self.grid.board, reward, done, truncated, {})
+        
+    def render(self):   
         pass
 
-    def reset(self):
+    def reset(self, seed = None, options = None):
         self.grid = Grid(self.m, self.n, self.cell_size)
         self.final_grid = Grid(self.m, self.n, self.cell_size, self.grid.cnt)
-        return self.grid
+        print(self.grid.board)
+        return self.grid.board, {}

@@ -13,12 +13,12 @@
 <div align="center">
   <img src="source/img/vinbigdata_banner.webp">
 </div>
-<h1 align="center">VINBIGDATA CTAI WEATHER FORECAST</h1>
+<h1 align="center">PROCON 2024</h1>
 <div align="center">
   <img src="source/img/topic_banner.png">
 </div>
 ## Overview
-This project is part of VINBIGDATA's Machine Learning initiative, focusing on weather forecasting using advanced machine learning techniques. This repository is maintained by Group 2 and includes all necessary code and dependencies to set up and run the project.
+This project is abcxyz
 
 ## Project Setup
 
