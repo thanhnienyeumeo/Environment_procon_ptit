@@ -2,23 +2,23 @@ import numpy as np
 import pygame
 from grid import Grid
 from pattern import Pattern
-# import gymnasium as gym
 import gym
 
 def solve(question):
     return {"n": 1, "ops": [{"x": 1, "y": 1, "s": 1, "p": 1}]}
 
+import time
 class Game(gym.Env):
     N_DISCRETE_ACTIONS = 10674304
 
     
     def __init__(self, m, n, cell_size):
-        super().__init__()
+        super.__init__()
         self.m = m
         self.n = n
         self.cell_size = cell_size
         self.grid = Grid(m, n, cell_size)
-        
+        self.start_time = time.time()
         self.dict = []
         self.action_space = gym.spaces.Discrete(self.init_action())
         self.observation_space = gym.spaces.Box(low=0, high=3, shape=(self.m, self.n), dtype=np.uint8)
@@ -79,7 +79,7 @@ class Game(gym.Env):
         return cnt
 
     def is_end(self):
-        return self.grid == self.final_grid
+        return self.grid == self.final_grid or time.time() - self.start_time > 60*4
 
 
     def step(self, action):
@@ -94,7 +94,10 @@ class Game(gym.Env):
         done = False
         if self.is_end():
             done = True
-            reward = 1
+            if self.grid == self.final_grid:
+                reward = 1
+            else:
+                reward = 0
         else:
             reward = 1 / (self.cntDifferece() + 1)
         truncated = False
@@ -103,8 +106,8 @@ class Game(gym.Env):
     def render(self):   
         pass
 
-    def reset(self, seed = None, options = None):
+    def reset(self):
         self.grid = Grid(self.m, self.n, self.cell_size)
         self.final_grid = Grid(self.m, self.n, self.cell_size, self.grid.cnt)
-        print(self.grid.board)
+        self.start_time = time.time()
         return self.grid.board, {}
