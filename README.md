@@ -24,8 +24,8 @@ This project is abcxyz
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/nqkhanh2002/VINBIGDATA-CTAI-Weather-Forecast.git
-cd VINBIGDATA-CTAI-Weather-Forecast
+git clone abcxyz
+cd abcxyz
 ```
 
 ### 2. Create a Virtual Environment
@@ -55,14 +55,9 @@ Install all necessary dependencies listed in the `requirements.txt` file:
 pip install -r requirements.txt
 ```
 
-### 5. Setup Kaggle API
-Ensure you have your Kaggle API credentials stored in a `.json` file. Then, set up the Kaggle dataset download:
 
-```bash
-py .\source\crawl\download_kaggle_dataset.py
-```
 
-### 6. Update the Requirements
+### 5. Update the Requirements
 After making changes to the code or adding new dependencies, make sure to update the `requirements.txt` file to reflect the current state of the environment:
 
 ```bash

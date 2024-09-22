@@ -39,44 +39,7 @@ class Game(gym.Env):
         print(len(self.dict))
         return len(self.dict)
 
-    def convert(self, action):
-        #32x32, pattern 3x3 -> 34 x 34
-        #from action --> (x,y,s,p)
-        #max size of pattern is 256x256
-        #because we can place pattern outside of the grid if at least one cell of pattern is inside the grid
-        # so if size of grid is mxn, 
-        # action = (255 + m + 255) (255 + n + 255) * s * p
-        # max_m = 256 => 255 + 256 = 511
-        p = action % 25
-        action //= 25
-        s = action % 4
-        action //= 4
-        x = action % 511
-        x -= 255
-        action //= 511
-        y = action % 511
-        y -= 255
-        action //= 511
-        print(x,y,s,p)
-        return (x, y, s, p)
-        # h h h n n n n n h s
-
-
-    def convert_back(self, x, y, s, p):
-        action = 0
-        action = action * 511 + y + 255
-        action = action * 511 + x + 255
-        action = action * 4 + s
-        action = action * 25 + p
-        return action
     
-    def cntDifferece(self):
-        cnt = 0
-        for i in range(self.m):
-            for j in range(self.n):
-                if self.grid.board[i][j] != self.final_grid.board[i][j]:
-                    cnt += 1
-        return cnt
 
     def is_end(self):
         return self.grid == self.final_grid or time.time() - self.start_time > 60*4
@@ -102,7 +65,15 @@ class Game(gym.Env):
             reward = 1 / (self.cntDifferece() + 1)
         truncated = False
         return (self.grid.board, reward, done, truncated, {})
-        
+    
+    def cntDifferece(self):
+            cnt = 0
+            for i in range(self.m):
+                for j in range(self.n):
+                    if self.grid.board[i][j] != self.final_grid.board[i][j]:
+                        cnt += 1
+            return cnt
+
     def render(self):   
         pass
 
@@ -111,3 +82,37 @@ class Game(gym.Env):
         self.final_grid = Grid(self.m, self.n, self.cell_size, self.grid.cnt)
         self.start_time = time.time()
         return self.grid.board, {}
+
+
+    #def convert(self, action):
+    #     #32x32, pattern 3x3 -> 34 x 34
+    #     #from action --> (x,y,s,p)
+    #     #max size of pattern is 256x256
+    #     #because we can place pattern outside of the grid if at least one cell of pattern is inside the grid
+    #     # so if size of grid is mxn, 
+    #     # action = (255 + m + 255) (255 + n + 255) * s * p
+    #     # max_m = 256 => 255 + 256 = 511
+    #     p = action % 25
+    #     action //= 25
+    #     s = action % 4
+    #     action //= 4
+    #     x = action % 511
+    #     x -= 255
+    #     action //= 511
+    #     y = action % 511
+    #     y -= 255
+    #     action //= 511
+    #     print(x,y,s,p)
+    #     return (x, y, s, p)
+    #     # h h h n n n n n h s
+
+
+    # def convert_back(self, x, y, s, p):
+    #     action = 0
+    #     action = action * 511 + y + 255
+    #     action = action * 511 + x + 255
+    #     action = action * 4 + s
+    #     action = action * 25 + p
+    #     return action
+    
+    
