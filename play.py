@@ -2,31 +2,75 @@
 
 import requests
 import json
-
-
+import numpy as np
+from pattern import Pattern
+from game import Game
 url = "https://proconvn.duckdns.org"
 headers = {"Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjIsIm5hbWUiOiJQVElUIiwiaXNfYWRtaW4iOmZhbHNlLCJpYXQiOjE3MjcwODE4NzAsImV4cCI6MTcyNzI1NDY3MH0.q_v10XqiMVC4q44Tcw3xewdjDPzKIct7eeAFP_0Tvtg"}
 
 
 # request question from server
 question_id = 72
-question = requests.get(f"{url}/question/{question_id}", headers=headers).json()
-#save question data to example.json
-with open('example.json', 'w') as f:
-    json.dump(question, f, indent=4)
+#get part
 
-for i in question:
+# question = requests.get(f"{url}/question/{question_id}", headers=headers).json()
+
+# with open('question.json', 'w') as f:
+#     json.dump(question, f, indent=4)
+
+#load part
+f = open('question.json', 'r')
+question = json.load(f)
+
+def get_info(question) :
+    question_data = json.loads(question['question_data'])
+    board = question_data['board']
+    general = question_data['general']
+
+    #preprocess board
+    height = board['height']
+    width = board['width']
+    start_board = board['start']
+    end_board = board['goal']
+    start_board = np.array(start_board)
+    end_board = np.array(end_board)
+
+    #preprocess general
+    n = general['n']
+
+    general_patterns = []
+    for i in general["patterns"]:
+        p = i["p"]
+        width = i["width"]
+        height = i["height"]
+        cells = i["cells"]
+        cells = np.array(cells)
+        general_patterns.append(Pattern(width, height, board = cells))
+    return start_board, end_board, general_patterns
+
+start_board, end_board, general_patterns = get_info(question)
+print(start_board.shape)
+print(end_board.shape)
+
+game = Game(32, 32, 20, start_board, end_board, general_patterns)
+
+for patterns in general_patterns:
+    print(patterns)
+m = start_board.shape[0]
+n = start_board.shape[1]
+game = Game(m, n, 20, start_board, end_board, general_patterns)
+# for i in question:
     
-    if i == 'question_data':
-        #convert question_data to json
-        question_data = json.loads(question[i])
-        for j in question_data:
-            print(j)
-            #create a file name j and save it to j.json
-            with open(j + '.json', 'w') as f:
-                json.dump(question_data[j], f, indent=4)
-    else:
-        print(i, question[i])
+#     if i == 'question_data':
+#         #convert question_data to json
+#         question_data = json.loads(question[i])
+#         for j in question_data:
+#             print(j)
+#             #create a file name j and save it to j.json
+#             with open(j + '.json', 'w') as f:
+#                 json.dump(question_data[j], f, indent=4)
+#     else:
+#         print(i, question[i])
 
 # solve question
 def solve(question):
@@ -46,3 +90,5 @@ def solve(question):
 # answer = requests.get(f"{url}/answer/{answer_id}", headers=headers).json()
 # score_data = json.loads(answer["score_data"])
 # print("final score:", score_data["final_score"])
+
+f.close()

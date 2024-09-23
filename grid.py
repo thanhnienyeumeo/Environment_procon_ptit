@@ -8,7 +8,7 @@ import random
 import numpy as np
 from pattern import Pattern
 class Grid:
-    def __init__(self, m, n, cell_size, cnt=None, render = None):
+    def __init__(self, m, n, cell_size = 20, cnt=None, render = None, board = None, patterns = None):
         self.cnt = [0, 0, 0, 0]
         self.m = m  # Số dòng
         self.n = n  # Số cột
@@ -24,7 +24,9 @@ class Grid:
             2: (0, 255, 0),      # Xanh lá
             3: (0, 0, 255)       # Xanh dương
         }
-        if cnt is None:
+        if board is not None:
+            self.board = board
+        elif cnt is None:
             self.fill_board_random()  # Gán giá trị cho bảng
         else:
             self.fill_board(cnt)
@@ -34,6 +36,8 @@ class Grid:
             size = 2**sz
             for _ in range(3):
                 self.patterns.append(Pattern(size,size,cell_size,_, render))
+        if patterns is not None:
+            self.patterns.append(patterns)
         self.patterns_3x3 = [Pattern(3, 3, cell_size,_, render) for _ in range(3)]  # Tạo 3 pattern 3x3 ngẫu nhiên
         self.patterns_2x2 = [Pattern(2, 2, cell_size,_, render) for _ in range(3)]  # Tạo 2 pattern 2x2 ngẫu nhiên
         self.selected_pattern = None  # Pattern được chọn

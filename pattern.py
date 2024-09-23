@@ -4,13 +4,15 @@ import pygame
 
 
 class Pattern:
-    def __init__(self, p, q, cell_size, id = 0, render = None):
+    def __init__(self, p, q, cell_size=20, id = 0, render = None, board = None):
         self.p = p  # Số dòng
         self.q = q  # Số cột
         self.cell_size = cell_size  # Kích thước ô vuông
         self.size = max(p, q) * cell_size  # Kích thước tổng thể của pattern
         self.pattern = np.random.randint(2, size=(p, q))  # Ma trận 2D chứa giá trị 0 hoặc 1
-        if id == 1:
+        if board is not None:
+            self.pattern = board
+        elif id == 1:
             #1 o tat ca
             for i in range(p):
                 for j in range(q):

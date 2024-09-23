@@ -12,18 +12,18 @@ class Game(gym.Env):
     N_DISCRETE_ACTIONS = 10674304
 
     
-    def __init__(self, m, n, cell_size):
+    def __init__(self, m, n, cell_size, start_board = None, end_board = None, patterns = None, render = None):
         super.__init__()
         self.m = m
         self.n = n
         self.cell_size = cell_size
-        self.grid = Grid(m, n, cell_size)
+        self.grid = Grid(m, n, cell_size, render = render, board = start_board, patterns = patterns)
         self.start_time = time.time()
         self.dict = []
         self.action_space = gym.spaces.Discrete(self.init_action())
         self.observation_space = gym.spaces.Box(low=0, high=3, shape=(self.m, self.n), dtype=np.uint8)
         #final grid having the same size, same count of 1,2,3 as grid but shuffle
-        self.final_grid = Grid(m, n, cell_size, self.grid.cnt)
+        self.final_grid = Grid(m, n, cell_size, self.grid.cnt, board = end_board)
         self.running = True
         self.dragging = False
         
@@ -35,6 +35,15 @@ class Game(gym.Env):
             for a in range(4):  
                 for x in range(-sz + 1,self.n):
                     for y in range(-sz + 1,self.m):
+                                self.dict.append([x, y, a, b])
+
+        for b in range(25, len(self.grid.patterns)):
+            sz_hori = self.grid.patterns[b].p
+            sz_vert = self.grid.patterns[b].q
+            
+            for a in range(4):  
+                for x in range(-sz_hori + 1,self.m):
+                    for y in range(-sz_vert + 1,self.n):
                                 self.dict.append([x, y, a, b])
         print(len(self.dict))
         return len(self.dict)
