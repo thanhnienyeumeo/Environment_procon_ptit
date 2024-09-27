@@ -31,13 +31,19 @@ class Grid:
         else:
             self.fill_board(cnt)
         self.hovered_cell = None
+
+        # Tạo các pattern
         self.patterns = [Pattern(1,1,cell_size,1, render)]
         for sz in range(1,9):
             size = 2**sz
             for _ in range(3):
                 self.patterns.append(Pattern(size,size,cell_size,_, render))
         if patterns is not None:
-            self.patterns.append(patterns)
+            for pattern in patterns:
+                self.patterns.append(pattern)
+        #sort the patterns by pattern.m
+        self.patterns = sorted(self.patterns, key = lambda x: x.size)
+        
         self.patterns_3x3 = [Pattern(3, 3, cell_size,_, render) for _ in range(3)]  # Tạo 3 pattern 3x3 ngẫu nhiên
         self.patterns_2x2 = [Pattern(2, 2, cell_size,_, render) for _ in range(3)]  # Tạo 2 pattern 2x2 ngẫu nhiên
         self.selected_pattern = None  # Pattern được chọn
@@ -222,63 +228,66 @@ class Grid:
             self.is_selecting_direction = True
             self.create_direction_buttons()
 
-    def apply_shift(self, direction):
+    def apply_shift(self, direction, inplace  = True):
         """Áp dụng phép dịch pattern vào grid."""
         grid_x, grid_y = self.cur_x, self.cur_y
         pattern_p = self.selected_pattern.p
         pattern_q = self.selected_pattern.q
         lifted_elements = []
-
+        cur_board = self.board.copy()
         # Bước 1: Đặt pattern P lên bảng B và "nhấc" các phần tử trong B tương ứng với phần tử 1 trong P
         for i in range(pattern_p):  
             for j in range(pattern_q):
                 if self.selected_pattern.pattern[i][j] == 1:
                     if 0 <= grid_y + i < self.m and 0 <= grid_x + j < self.n:
-                        lifted_elements.append(self.board[grid_y + i][grid_x + j])
-                        self.board[grid_y + i][grid_x + j] = -1  # Sử dụng giá trị đặc biệt để chỉ định ô trống
+                        lifted_elements.append(cur_board[grid_y + i][grid_x + j])
+                        cur_board[grid_y + i][grid_x + j] = -1  # Sử dụng giá trị đặc biệt để chỉ định ô trống
 
         # Bước 2: Dịch các phần tử còn lại theo hướng đã chọn
         if direction == 'right' or direction == 0:
             for i in range(self.m):
                 for j in range(self.n - 1, -1, -1):
-                    if self.board[i][j] == -1:
+                    if cur_board[i][j] == -1:
                         for k in range(j, self.n - 1):
-                            self.board[i][k] = self.board[i][k + 1]
-                        self.board[i][self.n - 1] = -1
+                            cur_board[i][k] = cur_board[i][k + 1]
+                        cur_board[i][self.n - 1] = -1
 
         elif direction == 'left' or direction == 1:
             for i in range(self.m):
                 for j in range(self.n):
-                    if self.board[i][j] == -1:
+                    if cur_board[i][j] == -1:
                         for k in range(j, 0, -1):
-                            self.board[i][k] = self.board[i][k - 1]
-                        self.board[i][0] = -1
+                            cur_board[i][k] = cur_board[i][k - 1]
+                        cur_board[i][0] = -1
 
         elif direction == 'down' or direction == 2:
             for j in range(self.n):
                 for i in range(self.m - 1, -1, -1):
-                    if self.board[i][j] == -1:
+                    if cur_board[i][j] == -1:
                         for k in range(i, self.m - 1):
-                            self.board[k][j] = self.board[k + 1][j]
-                        self.board[self.m - 1][j] = -1
+                            cur_board[k][j] = cur_board[k + 1][j]
+                        cur_board[self.m - 1][j] = -1
 
         elif direction == 'up' or direction == 3:
             for j in range(self.n):
                 for i in range(self.m):
-                    if self.board[i][j] == -1:
+                    if cur_board[i][j] == -1:
                         for k in range(i, 0, -1):
-                            self.board[k][j] = self.board[k - 1][j]
-                        self.board[0][j] = -1
+                            cur_board[k][j] = cur_board[k - 1][j]
+                        cur_board[0][j] = -1
 
         # Bước 3: Đặt lại các phần tử đã "nhấc" vào các ô trống
         for i in range(self.m):
             for j in range(self.n):
-                if self.board[i][j] == -1 and lifted_elements:
-                    self.board[i][j] = lifted_elements.pop(0)
+                if cur_board[i][j] == -1 and lifted_elements:
+                    cur_board[i][j] = lifted_elements.pop(0)
         #reset
         self.selected_pattern = None
         self.original_pattern_pos = None
         self.current_pattern_pos = None
+        if inplace:
+            self.board = cur_board
+        return cur_board
 
 
     def update_dragging(self, pos):

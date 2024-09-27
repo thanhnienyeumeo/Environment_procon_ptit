@@ -12,6 +12,7 @@ class Pattern:
         self.pattern = np.random.randint(2, size=(p, q))  # Ma trận 2D chứa giá trị 0 hoặc 1
         if board is not None:
             self.pattern = board
+            id = 100
         elif id == 1:
             #1 o tat ca
             for i in range(p):
@@ -33,6 +34,7 @@ class Pattern:
                         self.pattern[i][j] = 1
                     else:
                         self.pattern[i][j] = 0
+        self.id = id
         self.top = (0, 0)
         self.bottom = (0, 0)
         # Tạo surface để vẽ pattern với độ trong suốt

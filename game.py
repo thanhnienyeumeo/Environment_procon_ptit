@@ -2,26 +2,27 @@ import numpy as np
 import pygame
 from grid import Grid
 from pattern import Pattern
-import gym
+
 
 def solve(question):
     return {"n": 1, "ops": [{"x": 1, "y": 1, "s": 1, "p": 1}]}
 
 import time
-class Game(gym.Env):
+class Game():
     N_DISCRETE_ACTIONS = 10674304
 
     
     def __init__(self, m, n, cell_size, start_board = None, end_board = None, patterns = None, render = None):
-        super.__init__()
+        super().__init__()
         self.m = m
         self.n = n
         self.cell_size = cell_size
         self.grid = Grid(m, n, cell_size, render = render, board = start_board, patterns = patterns)
         self.start_time = time.time()
         self.dict = []
-        self.action_space = gym.spaces.Discrete(self.init_action())
-        self.observation_space = gym.spaces.Box(low=0, high=3, shape=(self.m, self.n), dtype=np.uint8)
+        self.init_action()
+        # self.action_space = gym.spaces.Discrete(self.init_action())
+        # self.observation_space = gym.spaces.Box(low=0, high=3, shape=(self.m, self.n), dtype=np.uint8)
         #final grid having the same size, same count of 1,2,3 as grid but shuffle
         self.final_grid = Grid(m, n, cell_size, self.grid.cnt, board = end_board)
         self.running = True
@@ -29,15 +30,8 @@ class Game(gym.Env):
         
     
     def init_action(self):
-        for b in range(25):
-            sz = int((b-1)/3+1)
-            sz = 2 ** (sz)
-            for a in range(4):  
-                for x in range(-sz + 1,self.n):
-                    for y in range(-sz + 1,self.m):
-                                self.dict.append([x, y, a, b])
 
-        for b in range(25, len(self.grid.patterns)):
+        for b in range(0, len(self.grid.patterns)):
             sz_hori = self.grid.patterns[b].p
             sz_vert = self.grid.patterns[b].q
             
@@ -51,12 +45,17 @@ class Game(gym.Env):
     
 
     def is_end(self):
-        return self.grid == self.final_grid or time.time() - self.start_time > 60*4
-
+        return self.grid == self.final_grid
+    
+    def convert(self, x, y, s, p):
+        return self.dict.index([x,y,s,p])
+        
 
     def step(self, action):
         
         x,y, direction, p = self.dict[action]
+        if self.grid.patterns[p].p > self.m or self.grid.patterns[p].q > self.n:
+            return (self.grid.board, 0, False, False, {})
         self.grid.selected_pattern = self.grid.patterns[p]
         self.grid.cur_x = x
         self.grid.cur_y = y
@@ -74,6 +73,29 @@ class Game(gym.Env):
             reward = 1 / (self.cntDifferece() + 1)
         truncated = False
         return (self.grid.board, reward, done, truncated, {})
+    
+    def fake_step(self, action):
+        
+        x,y, direction, p = self.dict[action]
+        if self.grid.patterns[p].p > self.m or self.grid.patterns[p].q > self.n:
+            return (self.grid.board, 0, False, False, {})
+        self.grid.selected_pattern = self.grid.patterns[p]
+        self.grid.cur_x = x
+        self.grid.cur_y = y
+        new_board = self.grid.apply_shift(direction, inplace = False)
+        #my destiny is alonej
+        reward = 0
+        done = False
+        if np.all(new_board == self.final_grid.board):
+            done = True
+            if np.all(new_board == self.final_grid.board):
+                reward = 1
+            else:
+                reward = 0
+        else:
+            reward = 1 / (self.cntDifferece() + 1)
+        truncated = False
+        return (new_board, reward, done, truncated, {})
     
     def cntDifferece(self):
             cnt = 0
