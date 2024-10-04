@@ -78,30 +78,31 @@ class Game():
         
         x,y, direction, p = self.dict[action]
         if self.grid.patterns[p].p > self.m or self.grid.patterns[p].q > self.n:
-            return (self.grid.board, 0, False, False, {})
+            return (self.grid.board, 9999999, False, False, {})
         self.grid.selected_pattern = self.grid.patterns[p]
         self.grid.cur_x = x
         self.grid.cur_y = y
         new_board = self.grid.apply_shift(direction, inplace = False)
+        
         #my destiny is alonej
         reward = 0
         done = False
         if np.all(new_board == self.final_grid.board):
             done = True
-            if np.all(new_board == self.final_grid.board):
-                reward = 1
-            else:
-                reward = 0
+            reward = 0
         else:
-            reward = 1 / (self.cntDifferece() + 1)
+            reward = self.cntDifferece(new_board)
+            # print(reward)
         truncated = False
         return (new_board, reward, done, truncated, {})
     
-    def cntDifferece(self):
+    def cntDifferece(self, board = None):
+            if board is None:
+                board = self.grid.board
             cnt = 0
             for i in range(self.m):
                 for j in range(self.n):
-                    if self.grid.board[i][j] != self.final_grid.board[i][j]:
+                    if self.final_grid.board[i][j] != board[i][j]:
                         cnt += 1
             return cnt
 

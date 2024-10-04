@@ -244,7 +244,7 @@ class Grid:
                         cur_board[grid_y + i][grid_x + j] = -1  # Sử dụng giá trị đặc biệt để chỉ định ô trống
 
         # Bước 2: Dịch các phần tử còn lại theo hướng đã chọn
-        if direction == 'right' or direction == 0:
+        if direction == 'right' or direction == 2:
             for i in range(self.m):
                 for j in range(self.n - 1, -1, -1):
                     if cur_board[i][j] == -1:
@@ -252,7 +252,7 @@ class Grid:
                             cur_board[i][k] = cur_board[i][k + 1]
                         cur_board[i][self.n - 1] = -1
 
-        elif direction == 'left' or direction == 1:
+        elif direction == 'left' or direction == 3:
             for i in range(self.m):
                 for j in range(self.n):
                     if cur_board[i][j] == -1:
@@ -260,7 +260,7 @@ class Grid:
                             cur_board[i][k] = cur_board[i][k - 1]
                         cur_board[i][0] = -1
 
-        elif direction == 'down' or direction == 2:
+        elif direction == 'down' or direction == 0:
             for j in range(self.n):
                 for i in range(self.m - 1, -1, -1):
                     if cur_board[i][j] == -1:
@@ -268,7 +268,7 @@ class Grid:
                             cur_board[k][j] = cur_board[k + 1][j]
                         cur_board[self.m - 1][j] = -1
 
-        elif direction == 'up' or direction == 3:
+        elif direction == 'up' or direction == 1:
             for j in range(self.n):
                 for i in range(self.m):
                     if cur_board[i][j] == -1:

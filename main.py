@@ -11,8 +11,14 @@ from game import Game
 def main():
     m,n = 32,32
     cell_size = 20
-    game = Game(m, n, cell_size)
+    game = Game(m, n, cell_size, render=True)
     grid = game.grid  # Tạo một lưới 7x7 với kích thước ô là 50
+    
+    board = game.grid.board
+    #save board to numpy file
+    with open("board.npy", "wb") as f:
+        np.save(f, board)
+    
     running = True
     dragging = False
 #tabun
