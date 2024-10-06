@@ -12,7 +12,7 @@ class Game():
     N_DISCRETE_ACTIONS = 10674304
 
     
-    def __init__(self, m, n, cell_size, start_board = None, end_board = None, patterns = None, render = None):
+    def __init__(self, m, n, cell_size = 10, start_board = None, end_board = None, patterns = None, render = None):
         super().__init__()
         self.m = m
         self.n = n

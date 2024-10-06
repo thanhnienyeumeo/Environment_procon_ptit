@@ -13,12 +13,12 @@ class Pattern:
         if board is not None:
             self.pattern = board
             id = 100
-        elif id == 1:
+        elif id == 0:
             #1 o tat ca
             for i in range(p):
                 for j in range(q):
                     self.pattern[i][j] =1
-        elif id == 2:
+        elif id == 1:
             #1 o hang chan, 0 o hang le
             for i in range(p):
                 for j in range(q):

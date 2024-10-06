@@ -1,7 +1,7 @@
 
 ###
 
-
+#Danh doi de duoc dieu j
 # ###
 import pygame
 import random
@@ -42,7 +42,7 @@ class Grid:
             for pattern in patterns:
                 self.patterns.append(pattern)
         #sort the patterns by pattern.m
-        self.patterns = sorted(self.patterns, key = lambda x: x.size)
+      #  self.patterns = sorted(self.patterns, key = lambda x: x.size)
         
         self.patterns_3x3 = [Pattern(3, 3, cell_size,_, render) for _ in range(3)]  # Tạo 3 pattern 3x3 ngẫu nhiên
         self.patterns_2x2 = [Pattern(2, 2, cell_size,_, render) for _ in range(3)]  # Tạo 2 pattern 2x2 ngẫu nhiên
@@ -239,10 +239,10 @@ class Grid:
         for i in range(pattern_p):  
             for j in range(pattern_q):
                 if self.selected_pattern.pattern[i][j] == 1:
-                    if 0 <= grid_y + i < self.m and 0 <= grid_x + j < self.n:
-                        lifted_elements.append(cur_board[grid_y + i][grid_x + j])
-                        cur_board[grid_y + i][grid_x + j] = -1  # Sử dụng giá trị đặc biệt để chỉ định ô trống
-
+                    if 0 <= grid_x + i < self.m and 0 <= grid_y + j < self.n:
+                        lifted_elements.append(cur_board[grid_x + i][grid_y + j])
+                        cur_board[grid_x + i][grid_y + j] = -1  # Sử dụng giá trị đặc biệt để chỉ định ô trống
+        
         # Bước 2: Dịch các phần tử còn lại theo hướng đã chọn
         if direction == 'right' or direction == 2:
             for i in range(self.m):
