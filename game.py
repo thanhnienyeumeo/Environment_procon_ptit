@@ -1,6 +1,6 @@
 import numpy as np
 import pygame
-from grid import Grid
+from grid import Grid, apply_shift
 from pattern import Pattern
 
 
@@ -12,7 +12,7 @@ class Game():
     N_DISCRETE_ACTIONS = 10674304
 
     
-    def __init__(self, m, n, cell_size = 10, start_board = None, end_board = None, patterns = None, render = None):
+    def __init__(self, m, n,  start_board = None, end_board = None, patterns = None, render = None, cell_size = 10):
         super().__init__()
         self.m = m
         self.n = n

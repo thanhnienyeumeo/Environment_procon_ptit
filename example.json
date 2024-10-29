@@ -1,9 +1,0 @@
-id 72
-name Q6 (1 die + 1 move)
-board
-general
-createdAt 2024-09-02T17:10:33.000Z
-updatedAt 2024-09-02T17:11:39.000Z
-match_id 1
-match {'id': 1, 'name': 'Match 1', 'description': '', 'start_time': '2024-09-02T17:00:00.000Z', 'end_time': '2024-11-29T17:00:00.000Z', 'is_active': T
-rue, 'createdAt': '2024-08-18T20:51:47.000Z', 'updatedAt': '2024-09-15T13:26:45.000Z', 'round_id': 1}

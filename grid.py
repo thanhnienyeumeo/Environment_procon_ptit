@@ -7,6 +7,87 @@ import pygame
 import random
 import numpy as np
 from pattern import Pattern
+
+
+def apply_shift(board, grid_x, grid_y, pattern: Pattern, direction, inplace  = True):
+        """Áp dụng phép dịch pattern vào grid."""
+        
+        pattern_p = pattern.p
+        pattern_q = pattern.q
+        lifted_elements = []
+        cur_board = board.copy()
+        m = board.shape[0]
+        n = board.shape[1]
+        #find width and height of the board that change after apply shift
+        width = pattern_q
+        height = pattern_p
+        if direction == 'up' or direction == 1:
+            #find the height of the board that change after apply shift
+            height = m - grid_x
+        elif direction == 'left' or direction == 3:
+            #find the width of the board that change after apply shift
+            width = n - grid_y
+        elif direction == 'down' or direction == 0:
+            #find the height of the board that change after apply shift
+            height = pattern_p + grid_x
+        else:
+            #find the width of the board that change after apply shift
+            width = pattern_q + grid_y
+        # Bước 1: Đặt pattern P lên bảng B và "nhấc" các phần tử trong B tương ứng với phần tử 1 trong P
+        for i in range(pattern_p):  
+            for j in range(pattern_q):
+                if pattern.pattern[i][j] == 1:
+                    if 0 <= grid_x + i < m and 0 <= grid_y + j < n:
+                        lifted_elements.append(cur_board[grid_x + i][grid_y + j])
+                        cur_board[grid_x + i][grid_y + j] = -1  # Sử dụng giá trị đặc biệt để chỉ định ô trống
+        
+        # Bước 2: Dịch các phần tử còn lại theo hướng đã chọn
+        if direction == 'right' or direction == 2:
+            for i in range(m):
+                for j in range(n - 1, -1, -1):
+                    if cur_board[i][j] == -1:
+                        for k in range(j, n - 1):
+                            cur_board[i][k] = cur_board[i][k + 1]
+                        cur_board[i][n - 1] = -1
+
+        elif direction == 'left' or direction == 3:
+            for i in range(m):
+                for j in range(n):
+                    if cur_board[i][j] == -1:
+                        for k in range(j, 0, -1):
+                            cur_board[i][k] = cur_board[i][k - 1]
+                        cur_board[i][0] = -1
+
+        elif direction == 'down' or direction == 0:
+            for j in range(n):
+                for i in range(m - 1, -1, -1):
+                    if cur_board[i][j] == -1:
+                        for k in range(i, m - 1):
+                            cur_board[k][j] = cur_board[k + 1][j]
+                        cur_board[m - 1][j] = -1
+
+        elif direction == 'up' or direction == 1:
+            for j in range(n):
+                for i in range(m):
+                    if cur_board[i][j] == -1:
+                        for k in range(i, 0, -1):
+                            cur_board[k][j] = cur_board[k - 1][j]
+                        cur_board[0][j] = -1
+
+        # Bước 3: Đặt lại các phần tử đã "nhấc" vào các ô trống
+        for i in range(m):
+            for j in range(n):
+                if cur_board[i][j] == -1 and lifted_elements:
+                    cur_board[i][j] = lifted_elements.pop(0)
+        #reset
+        pattern = None
+        original_pattern_pos = None
+        current_pattern_pos = None
+        if inplace:
+            board = cur_board
+        return cur_board
+
+
 class Grid:
     def __init__(self, m, n, cell_size = 20, cnt=None, render = None, board = None, patterns = None):
         self.cnt = [0, 0, 0, 0]
